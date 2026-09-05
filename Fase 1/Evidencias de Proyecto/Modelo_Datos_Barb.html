@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<meta name="ProgId" content="Word.Document">
+<meta name="Generator" content="Microsoft Word 15">
+<meta name="Originator" content="Microsoft Word 15">
+<title>Modelo de Datos - Proyecto Barb</title>
+<!--[if gte mso 9]><xml>
+<w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml><![endif]-->
+<style>
+@page WordSection1 { size: 21.59cm 27.94cm; margin: 2cm 2cm 2cm 2cm; }
+div.WordSection1 { page: WordSection1; }
+body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1f2937; line-height: 1.45; }
+h1 { font-size: 24pt; color: #0f172a; margin-top: 0; margin-bottom: 6pt; border-bottom: 3px solid #2563eb; padding-bottom: 6pt; }
+h2 { font-size: 16pt; color: #1e40af; margin-top: 24pt; margin-bottom: 8pt; border-bottom: 1.5px solid #93c5fd; padding-bottom: 4pt; page-break-after: avoid; }
+h3 { font-size: 13pt; color: #1e3a8a; margin-top: 16pt; margin-bottom: 6pt; page-break-after: avoid; }
+h4 { font-size: 11.5pt; color: #1e40af; margin-top: 12pt; margin-bottom: 4pt; page-break-after: avoid; }
+p { margin: 6pt 0; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 8pt 0 14pt 0; font-size: 9.5pt; }
+table.spec th { background: #1e40af; color: #ffffff; font-weight: bold; text-align: left; padding: 5pt 7pt; border: 1px solid #1e3a8a; }
+table.spec td { padding: 4pt 7pt; border: 1px solid #cbd5e1; vertical-align: top; }
+table.spec tr:nth-child(even) td { background: #f1f5f9; }
+.pk { color: #b91c1c; font-weight: bold; }
+.fk { color: #047857; font-weight: bold; }
+.new { background: #fef3c7; }
+.module-box { background: #eff6ff; border-left: 4px solid #2563eb; padding: 8pt 12pt; margin: 10pt 0; }
+.warning { background: #fef2f2; border-left: 4px solid #dc2626; padding: 8pt 12pt; margin: 10pt 0; }
+.cover { text-align: center; margin: 80pt 0 40pt 0; }
+.cover .title { font-size: 28pt; font-weight: bold; color: #0f172a; }
+.cover .subtitle { font-size: 14pt; color: #475569; margin-top: 10pt; }
+.cover .meta { font-size: 11pt; color: #64748b; margin-top: 30pt; }
+.toc { margin: 14pt 0; }
+.toc div { margin: 3pt 0; padding-left: 8pt; }
+ul { margin: 6pt 0 6pt 18pt; padding: 0; }
+li { margin: 3pt 0; }
+.tag { display: inline-block; background: #dbeafe; color: #1e3a8a; padding: 1pt 6pt; border-radius: 3pt; font-size: 8.5pt; font-weight: bold; margin-right: 4pt; }
+.tag-new { background: #fef3c7; color: #92400e; }
+.tag-mod { background: #d1fae5; color: #065f46; }
+code { background: #f1f5f9; padding: 1pt 4pt; border-radius: 2pt; font-family: Consolas, monospace; font-size: 9.5pt; }
+.diagram-container { margin: 20pt 0; text-align: center; page-break-inside: avoid; }
+.diagram-container svg { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>
+<div class="WordSection1">
+
+<div class="cover">
+<div class="title">Modelo de Datos Completo</div>
+<div class="subtitle">Proyecto Barb &mdash; Plant Maintenance App</div>
+<div class="meta">
+Especificaci&oacute;n t&eacute;cnica de tablas, atributos y relaciones<br>
+Versi&oacute;n 1.0 &mdash; Mayo 2026
+</div>
+</div>
+
+<h2>1. Introducci&oacute;n</h2>
+<p>Este documento presenta el modelo de datos rediseñado para el proyecto <strong>Barb</strong> (Plant Maintenance App), una aplicaci&oacute;n para gesti&oacute;n de mantenimiento industrial que integra chat con documentaci&oacute;n, diagn&oacute;stico asistido por IA, topolog&iacute;a de planta y mantenimiento predictivo.</p>
+<p>El modelo aqu&iacute; especificado resuelve los <strong>30 endpoints</strong> definidos en el documento <em>"Plant Maintenance App &mdash; Backend API Documentation"</em> y cubre los cuatro m&oacute;dulos funcionales del wireframe: <em>Document Chat</em>, <em>Machine Debug</em>, <em>Plant Topology</em> y <em>Predictive Maintenance</em>.</p>
+
+<h2>2. Resumen Ejecutivo</h2>
+<p>El modelo original propuesto resolv&iacute;a aproximadamente el 40-50% de los endpoints. Las principales deficiencias detectadas fueron:</p>
+<ul>
+<li>Falta de la entidad <code>DISCIPLINA</code>, eje central del chat con documentaci&oacute;n.</li>
+<li>Mezcla de la conversaci&oacute;n y los mensajes en un &uacute;nico campo <code>TEXT</code> (deber&iacute;an ser tablas separadas 1:N).</li>
+<li>Ausencia total del m&oacute;dulo de topolog&iacute;a de planta (nodos, conexiones, zonas, sensores).</li>
+<li><code>REPORTE</code> no exist&iacute;a como entidad propia.</li>
+<li>Relaci&oacute;n <code>ORDEN_TRABAJO &rarr; REPUESTO</code> definida como FK simple (deber&iacute;a ser muchos-a-muchos).</li>
+<li>Sin soporte para preferencias de usuario, logs de actividad, adjuntos, ni mantenimiento predictivo.</li>
+<li>Tabla <code>DASHBOARD</code> incorrectamente modelada como entidad (es una vista agregada).</li>
+</ul>
+<p>El modelo propuesto agrega <strong>22 tablas nuevas</strong>, refactoriza <strong>7 tablas existentes</strong> y reorganiza el dise&ntilde;o en <strong>9 m&oacute;dulos funcionales</strong>.</p>
+
+<h2>3. &Iacute;ndice de Tablas</h2>
+<div class="toc">
+<div><strong>M&oacute;dulo 1 &mdash; Autenticaci&oacute;n y Usuarios:</strong> USUARIO, AUTH_TOKEN, PREFERENCIA_USUARIO, LOG_ACTIVIDAD</div>
+<div><strong>M&oacute;dulo 2 &mdash; Plantas y M&aacute;quinas:</strong> PLANTA, CATEGORIA_MAQUINA, MAQUINA, SENSOR</div>
+<div><strong>M&oacute;dulo 3 &mdash; Documentaci&oacute;n:</strong> DISCIPLINA, DOCUMENTO</div>
+<div><strong>M&oacute;dulo 4 &mdash; Chat (Documentaci&oacute;n y Debug):</strong> CONVERSACION, MENSAJE, FUENTE_MENSAJE, SESION_DEBUG, ADJUNTO</div>
+<div><strong>M&oacute;dulo 5 &mdash; Diagn&oacute;stico y Reportes:</strong> DIAGNOSTICO, DIAGNOSTICO_CAUSA, DIAGNOSTICO_ACCION, REPORTE</div>
+<div><strong>M&oacute;dulo 6 &mdash; &Oacute;rdenes de Trabajo:</strong> ORDEN_TRABAJO, OT_REPUESTO, OT_AUDIT_LOG</div>
+<div><strong>M&oacute;dulo 7 &mdash; Inventario:</strong> REPUESTO</div>
+<div><strong>M&oacute;dulo 8 &mdash; Topolog&iacute;a de Planta:</strong> TOPOLOGIA_NODO, TOPOLOGIA_CONEXION, TOPOLOGIA_ZONA, ZONA_NODO</div>
+<div><strong>M&oacute;dulo 9 &mdash; Mantenimiento Predictivo:</strong> PROGRAMA_MANTENIMIENTO, EJECUCION_PROGRAMA, LECTURA_SENSOR</div>
+</div>
+
+<h2>4. Convenciones</h2>
+<ul>
+<li><span class="pk">PK</span> &mdash; Clave primaria.</li>
+<li><span class="fk">FK</span> &mdash; Clave for&aacute;nea.</li>
+<li><span class="tag tag-new">NUEVA</span> &mdash; Tabla a&ntilde;adida respecto al modelo original.</li>
+<li><span class="tag tag-mod">MODIFICADA</span> &mdash; Tabla del modelo original que requiere cambios.</li>
+<li>Todos los <code>timestamp</code> usan formato ISO 8601 UTC.</li>
+<li>Los IDs se modelan como <code>BIGINT</code> autoincremental (o <code>UUID</code> seg&uacute;n preferencia del equipo).</li>
+<li>Eliminaciones l&oacute;gicas: la API actual no implementa <em>soft deletes</em>; las columnas <code>estado</code> permiten desactivar registros sin eliminarlos.</li>
+</ul>
+
+<!-- ================================================================ -->
+<h2>5. M&oacute;dulo 1 &mdash; Autenticaci&oacute;n y Usuarios</h2>
+
+<h3>5.1 USUARIO <span class="tag tag-mod">MODIFICADA</span></h3>
+<p>Unifica las dos tablas originales (<code>USUARIOS</code> + <code>Datos del Usuario</code>) en una sola entidad. Incluye campos para autenticaci&oacute;n y permisos.</p>
+<table class="spec">
+<tr><th style="width:25%">Atributo</th><th style="width:15%">Tipo</th><th style="width:10%">Llave</th><th style="width:8%">Nulo</th><th style="width:42%">Descripci&oacute;n</th></tr>
+<tr><td>usuario_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador &uacute;nico.</td></tr>
+<tr><td>username</td><td>VARCHAR(50)</td><td>UNIQUE</td><td>No</td><td>Nombre de usuario para login.</td></tr>
+<tr><td>email</td><td>VARCHAR(120)</td><td>UNIQUE</td><td>No</td><td>Correo electr&oacute;nico.</td></tr>
+<tr><td>password_hash</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>No</td><td>Hash de la contrase&ntilde;a (bcrypt/argon2).</td></tr>
+<tr><td>nombre</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>No</td><td>Nombre.</td></tr>
+<tr><td>apellido</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>No</td><td>Apellido.</td></tr>
+<tr><td>telefono</td><td>VARCHAR(20)</td><td>&nbsp;</td><td>S&iacute;</td><td>Tel&eacute;fono de contacto.</td></tr>
+<tr><td>especialidad</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>S&iacute;</td><td>Especialidad t&eacute;cnica (ej. el&eacute;ctrica).</td></tr>
+<tr><td>rol</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>technician | engineer | supervisor | admin.</td></tr>
+<tr><td>permissions</td><td>JSON</td><td>&nbsp;</td><td>S&iacute;</td><td>Array de permisos espec&iacute;ficos.</td></tr>
+<tr><td>avatar_url</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>S&iacute;</td><td>URL del avatar.</td></tr>
+<tr><td>is_active</td><td>BOOLEAN</td><td>&nbsp;</td><td>No</td><td>Usuario activo (default true).</td></tr>
+<tr><td>last_login</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>&Uacute;ltimo inicio de sesi&oacute;n.</td></tr>
+<tr><td>fecha_registro</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha de creaci&oacute;n del usuario.</td></tr>
+<tr><td>updated_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>&Uacute;ltima actualizaci&oacute;n.</td></tr>
+</table>
+
+<h3>5.2 AUTH_TOKEN <span class="tag tag-new">NUEVA</span></h3>
+<p>Almacena <em>refresh tokens</em> y sesiones activas por dispositivo. Soporta los endpoints <code>/auth/login</code>, <code>/auth/refresh</code>, <code>/auth/logout</code>.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>token_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador &uacute;nico.</td></tr>
+<tr><td>usuario_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>Usuario propietario.</td></tr>
+<tr><td>refresh_token</td><td>VARCHAR(512)</td><td>UNIQUE</td><td>No</td><td>Token de refresco (hash recomendado).</td></tr>
+<tr><td>device_id</td><td>VARCHAR(120)</td><td>&nbsp;</td><td>S&iacute;</td><td>ID del dispositivo (tablet/m&oacute;vil).</td></tr>
+<tr><td>device_info</td><td>VARCHAR(200)</td><td>&nbsp;</td><td>S&iacute;</td><td>User-Agent o info del dispositivo.</td></tr>
+<tr><td>issued_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha de emisi&oacute;n.</td></tr>
+<tr><td>expires_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha de expiraci&oacute;n (30 d&iacute;as).</td></tr>
+<tr><td>revoked</td><td>BOOLEAN</td><td>&nbsp;</td><td>No</td><td>Token revocado (logout).</td></tr>
+</table>
+
+<h3>5.3 PREFERENCIA_USUARIO <span class="tag tag-new">NUEVA</span></h3>
+<p>Soporta <code>GET/PUT /user/preferences</code> y <code>/user/cache/clear</code>.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>usuario_id</td><td>BIGINT</td><td><span class="pk">PK</span> <span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>Usuario (1:1).</td></tr>
+<tr><td>language</td><td>CHAR(5)</td><td>&nbsp;</td><td>No</td><td>C&oacute;digo ISO (en, es, de).</td></tr>
+<tr><td>theme</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>light | dark.</td></tr>
+<tr><td>font_size</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>small | medium | large.</td></tr>
+<tr><td>notif_push</td><td>BOOLEAN</td><td>&nbsp;</td><td>No</td><td>Notificaciones push.</td></tr>
+<tr><td>notif_email</td><td>BOOLEAN</td><td>&nbsp;</td><td>No</td><td>Notificaciones por email.</td></tr>
+<tr><td>notif_maintenance_alerts</td><td>BOOLEAN</td><td>&nbsp;</td><td>No</td><td>Alertas de mantenimiento.</td></tr>
+<tr><td>default_plant_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; PLANTA</span></td><td>S&iacute;</td><td>Planta por defecto.</td></tr>
+<tr><td>offline_mode</td><td>BOOLEAN</td><td>&nbsp;</td><td>No</td><td>Modo sin conexi&oacute;n.</td></tr>
+<tr><td>auto_sync</td><td>BOOLEAN</td><td>&nbsp;</td><td>No</td><td>Sincronizaci&oacute;n autom&aacute;tica.</td></tr>
+<tr><td>cache_size_max</td><td>INT</td><td>&nbsp;</td><td>S&iacute;</td><td>Tama&ntilde;o m&aacute;ximo de cach&eacute; (bytes).</td></tr>
+<tr><td>download_wifi_only</td><td>BOOLEAN</td><td>&nbsp;</td><td>No</td><td>Descargar solo con WiFi.</td></tr>
+<tr><td>updated_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>&Uacute;ltima actualizaci&oacute;n.</td></tr>
+</table>
+
+<h3>5.4 LOG_ACTIVIDAD <span class="tag tag-new">NUEVA</span></h3>
+<p>Soporta <code>GET /user/activity</code> y auditor&iacute;a global del sistema.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>activity_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>usuario_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>Usuario que ejecuta la acci&oacute;n.</td></tr>
+<tr><td>tipo</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>login | logout | debug | chat | report | upload.</td></tr>
+<tr><td>descripcion</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>No</td><td>Descripci&oacute;n textual.</td></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MAQUINA</span></td><td>S&iacute;</td><td>M&aacute;quina relacionada (si aplica).</td></tr>
+<tr><td>session_id</td><td>BIGINT</td><td>&nbsp;</td><td>S&iacute;</td><td>ID de sesi&oacute;n relacionada.</td></tr>
+<tr><td>metadata</td><td>JSON</td><td>&nbsp;</td><td>S&iacute;</td><td>Datos adicionales (IP, request_id, etc.).</td></tr>
+<tr><td>timestamp</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha/hora de la acci&oacute;n.</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2>6. M&oacute;dulo 2 &mdash; Plantas y M&aacute;quinas</h2>
+
+<h3>6.1 PLANTA <span class="tag tag-mod">MODIFICADA</span></h3>
+<p>Soporta <code>GET /api/plants</code>. Mantiene <code>area</code> y <code>sector</code> originales y a&ntilde;ade nombre, ubicaci&oacute;n y estado.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>planta_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>nombre</td><td>VARCHAR(120)</td><td>&nbsp;</td><td>No</td><td>Nombre de la planta.</td></tr>
+<tr><td>ubicacion</td><td>VARCHAR(200)</td><td>&nbsp;</td><td>S&iacute;</td><td>Ubicaci&oacute;n geogr&aacute;fica.</td></tr>
+<tr><td>area</td><td>VARCHAR(100)</td><td>&nbsp;</td><td>S&iacute;</td><td>&Aacute;rea dentro del complejo industrial.</td></tr>
+<tr><td>sector</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>S&iacute;</td><td>Sector productivo.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>active | inactive | maintenance.</td></tr>
+<tr><td>created_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha de creaci&oacute;n.</td></tr>
+<tr><td>updated_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>&Uacute;ltima actualizaci&oacute;n.</td></tr>
+</table>
+
+<h3>6.2 CATEGORIA_MAQUINA <span class="tag tag-new">NUEVA</span></h3>
+<p>Cat&aacute;logo de categor&iacute;as (Bombas, V&aacute;lvulas, Compresores, etc.). Soporta filtrado por <code>category</code> en <code>/api/machines</code>.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>categoria_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>nombre</td><td>VARCHAR(80)</td><td>UNIQUE</td><td>No</td><td>Nombre de la categor&iacute;a.</td></tr>
+<tr><td>descripcion</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>S&iacute;</td><td>Descripci&oacute;n textual.</td></tr>
+<tr><td>icono</td><td>VARCHAR(50)</td><td>&nbsp;</td><td>S&iacute;</td><td>Nombre del icono UI.</td></tr>
+</table>
+
+<h3>6.3 MAQUINA <span class="tag tag-mod">MODIFICADA</span></h3>
+<p>Refactorizada para soportar <code>/api/machines</code> y <code>/api/machines/{id}</code>. Agrega <code>nombre</code>, <code>categoria_id</code>, im&aacute;genes, especificaciones t&eacute;cnicas y posici&oacute;n para topolog&iacute;a. <strong>Se elimina</strong> <code>manual_id</code> como FK directa: la relaci&oacute;n con MANUAL es 1:N (un manual pertenece a una m&aacute;quina, no al rev&eacute;s) y se modela en <code>DOCUMENTO.maquina_id</code>.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>planta_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; PLANTA</span></td><td>No</td><td>Planta a la que pertenece.</td></tr>
+<tr><td>categoria_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; CATEGORIA_MAQUINA</span></td><td>S&iacute;</td><td>Categor&iacute;a.</td></tr>
+<tr><td>nombre</td><td>VARCHAR(120)</td><td>&nbsp;</td><td>No</td><td>Nombre comercial / etiqueta.</td></tr>
+<tr><td>tipo</td><td>VARCHAR(60)</td><td>&nbsp;</td><td>S&iacute;</td><td>Tipo de m&aacute;quina.</td></tr>
+<tr><td>modelo</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>S&iacute;</td><td>Modelo.</td></tr>
+<tr><td>fabricante</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>S&iacute;</td><td>Fabricante.</td></tr>
+<tr><td>numero_serie</td><td>VARCHAR(80)</td><td>UNIQUE</td><td>S&iacute;</td><td>N&uacute;mero de serie.</td></tr>
+<tr><td>fecha_instalacion</td><td>DATE</td><td>&nbsp;</td><td>S&iacute;</td><td>Fecha de instalaci&oacute;n.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>operational | warning | maintenance | error | offline.</td></tr>
+<tr><td>image_url</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>S&iacute;</td><td>URL imagen principal.</td></tr>
+<tr><td>thumbnail_url</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>S&iacute;</td><td>URL miniatura.</td></tr>
+<tr><td>image_urls</td><td>JSON</td><td>&nbsp;</td><td>S&iacute;</td><td>Array de URLs adicionales.</td></tr>
+<tr><td>spec_power</td><td>VARCHAR(40)</td><td>&nbsp;</td><td>S&iacute;</td><td>Potencia (ej. "75 kW").</td></tr>
+<tr><td>spec_voltage</td><td>VARCHAR(40)</td><td>&nbsp;</td><td>S&iacute;</td><td>Voltaje.</td></tr>
+<tr><td>spec_capacity</td><td>VARCHAR(40)</td><td>&nbsp;</td><td>S&iacute;</td><td>Capacidad operativa.</td></tr>
+<tr><td>spec_width</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Ancho (mm).</td></tr>
+<tr><td>spec_height</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Alto (mm).</td></tr>
+<tr><td>spec_depth</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Profundidad (mm).</td></tr>
+<tr><td>spec_weight</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Peso (kg).</td></tr>
+<tr><td>position_x</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Coordenada X en la topolog&iacute;a.</td></tr>
+<tr><td>position_y</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Coordenada Y.</td></tr>
+<tr><td>position_z</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Coordenada Z (opcional).</td></tr>
+<tr><td>last_maintenance_date</td><td>DATE</td><td>&nbsp;</td><td>S&iacute;</td><td>&Uacute;ltimo mantenimiento.</td></tr>
+<tr><td>next_maintenance_date</td><td>DATE</td><td>&nbsp;</td><td>S&iacute;</td><td>Pr&oacute;ximo mantenimiento.</td></tr>
+<tr><td>created_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Creaci&oacute;n.</td></tr>
+<tr><td>updated_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Actualizaci&oacute;n.</td></tr>
+</table>
+
+<h3>6.4 SENSOR <span class="tag tag-new">NUEVA</span></h3>
+<p>El detalle de m&aacute;quina (<code>GET /api/machines/{id}</code>) devuelve un array <code>sensors[]</code> con valores actuales.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>sensor_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MAQUINA</span></td><td>No</td><td>M&aacute;quina a la que pertenece.</td></tr>
+<tr><td>nombre</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>No</td><td>Nombre del sensor.</td></tr>
+<tr><td>tipo</td><td>VARCHAR(40)</td><td>&nbsp;</td><td>No</td><td>temperatura | presi&oacute;n | vibraci&oacute;n | corriente | etc.</td></tr>
+<tr><td>unidad</td><td>VARCHAR(20)</td><td>&nbsp;</td><td>No</td><td>Unidad de medida (°C, bar, Hz).</td></tr>
+<tr><td>current_value</td><td>DECIMAL(12,4)</td><td>&nbsp;</td><td>S&iacute;</td><td>Valor actual / m&aacute;s reciente.</td></tr>
+<tr><td>min_value</td><td>DECIMAL(12,4)</td><td>&nbsp;</td><td>S&iacute;</td><td>Umbral m&iacute;nimo normal.</td></tr>
+<tr><td>max_value</td><td>DECIMAL(12,4)</td><td>&nbsp;</td><td>S&iacute;</td><td>Umbral m&aacute;ximo normal.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>normal | warning | critical | offline.</td></tr>
+<tr><td>last_reading_at</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>&Uacute;ltima lectura.</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2>7. M&oacute;dulo 3 &mdash; Documentaci&oacute;n</h2>
+
+<h3>7.1 DISCIPLINA <span class="tag tag-new">NUEVA</span></h3>
+<p>Eje central del <em>Document Chat</em>. Soporta <code>GET /api/disciplines</code>.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>disciplina_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>nombre</td><td>VARCHAR(60)</td><td>UNIQUE</td><td>No</td><td>Electrical, Mechanical, Hydraulic, Pneumatic, Automation.</td></tr>
+<tr><td>icono</td><td>VARCHAR(50)</td><td>&nbsp;</td><td>S&iacute;</td><td>Icono (string o emoji).</td></tr>
+<tr><td>color</td><td>VARCHAR(20)</td><td>&nbsp;</td><td>S&iacute;</td><td>Color de UI.</td></tr>
+<tr><td>descripcion</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>S&iacute;</td><td>Descripci&oacute;n.</td></tr>
+</table>
+
+<h3>7.2 DOCUMENTO <span class="tag tag-mod">MODIFICADA</span> (antes MANUALES)</h3>
+<p>Renombrada a DOCUMENTO porque incluye manuales, planos, diagramas, procedimientos, etc. Soporta <code>GET /api/documents</code> con filtros por disciplina, planta y m&aacute;quina.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>documento_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>disciplina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; DISCIPLINA</span></td><td>No</td><td>Disciplina del documento.</td></tr>
+<tr><td>planta_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; PLANTA</span></td><td>S&iacute;</td><td>Planta (puede ser NULL si es global).</td></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MAQUINA</span></td><td>S&iacute;</td><td>M&aacute;quina espec&iacute;fica (NULL si aplica a todas).</td></tr>
+<tr><td>usuario_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>Quien lo subi&oacute;.</td></tr>
+<tr><td>titulo</td><td>VARCHAR(200)</td><td>&nbsp;</td><td>No</td><td>T&iacute;tulo del documento.</td></tr>
+<tr><td>tipo</td><td>VARCHAR(40)</td><td>&nbsp;</td><td>S&iacute;</td><td>manual | diagrama | procedimiento | hoja_t&eacute;cnica.</td></tr>
+<tr><td>url_archivo</td><td>VARCHAR(500)</td><td>&nbsp;</td><td>No</td><td>URL al archivo (PDF, imagen, etc.).</td></tr>
+<tr><td>tamano_bytes</td><td>BIGINT</td><td>&nbsp;</td><td>S&iacute;</td><td>Tama&ntilde;o en bytes.</td></tr>
+<tr><td>mime_type</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>S&iacute;</td><td>Tipo MIME.</td></tr>
+<tr><td>version</td><td>VARCHAR(20)</td><td>&nbsp;</td><td>S&iacute;</td><td>Versi&oacute;n (ej. "1.2").</td></tr>
+<tr><td>fecha_subida</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha de subida.</td></tr>
+<tr><td>last_modified</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>&Uacute;ltima modificaci&oacute;n.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>active | archived | obsolete.</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2>8. M&oacute;dulo 4 &mdash; Chat (Documentaci&oacute;n y Debug)</h2>
+
+<h3>8.1 CONVERSACION <span class="tag tag-mod">MODIFICADA</span> (antes CONSULTAS_IA)</h3>
+<p>Cabecera de la conversaci&oacute;n. Soporta tanto Document Chat como Debug Chat. El contenido textual se traslada a la tabla MENSAJE (1:N).</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>conversacion_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>usuario_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>Usuario que inicia.</td></tr>
+<tr><td>tipo</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>document_chat | debug_chat.</td></tr>
+<tr><td>disciplina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; DISCIPLINA</span></td><td>S&iacute;</td><td>Solo para document_chat.</td></tr>
+<tr><td>planta_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; PLANTA</span></td><td>S&iacute;</td><td>Contexto de planta.</td></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MAQUINA</span></td><td>S&iacute;</td><td>M&aacute;quina en foco.</td></tr>
+<tr><td>sesion_debug_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; SESION_DEBUG</span></td><td>S&iacute;</td><td>Solo para debug_chat.</td></tr>
+<tr><td>fecha_inicio</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Inicio de la conversaci&oacute;n.</td></tr>
+<tr><td>fecha_fin</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>Cierre (si aplica).</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>active | completed | closed.</td></tr>
+</table>
+
+<h3>8.2 MENSAJE <span class="tag tag-new">NUEVA</span></h3>
+<p>Mensajes individuales de la conversaci&oacute;n. El endpoint <code>/api/chat/history</code> devuelve un array de estos.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>mensaje_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>conversacion_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; CONVERSACION</span></td><td>No</td><td>Conversaci&oacute;n a la que pertenece.</td></tr>
+<tr><td>tipo</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>user | assistant.</td></tr>
+<tr><td>contenido</td><td>TEXT</td><td>&nbsp;</td><td>No</td><td>Texto del mensaje.</td></tr>
+<tr><td>timestamp</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Marca de tiempo.</td></tr>
+<tr><td>suggested_questions</td><td>JSON</td><td>&nbsp;</td><td>S&iacute;</td><td>Preguntas sugeridas (solo en respuestas).</td></tr>
+<tr><td>sensor_data_snapshot</td><td>JSON</td><td>&nbsp;</td><td>S&iacute;</td><td>Snapshot de sensores (debug chat).</td></tr>
+</table>
+
+<h3>8.3 FUENTE_MENSAJE <span class="tag tag-new">NUEVA</span></h3>
+<p>Referencias documentales de las respuestas del asistente IA (campo <code>sources[]</code> en <code>POST /api/chat/documents</code>).</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>fuente_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>mensaje_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MENSAJE</span></td><td>No</td><td>Mensaje al que pertenece.</td></tr>
+<tr><td>documento_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; DOCUMENTO</span></td><td>No</td><td>Documento referenciado.</td></tr>
+<tr><td>page_number</td><td>INT</td><td>&nbsp;</td><td>S&iacute;</td><td>P&aacute;gina del documento.</td></tr>
+<tr><td>section</td><td>VARCHAR(120)</td><td>&nbsp;</td><td>S&iacute;</td><td>Secci&oacute;n / cap&iacute;tulo.</td></tr>
+<tr><td>excerpt</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Extracto citado.</td></tr>
+<tr><td>relevance_score</td><td>DECIMAL(5,4)</td><td>&nbsp;</td><td>S&iacute;</td><td>Puntaje de relevancia (0-1).</td></tr>
+</table>
+
+<h3>8.4 SESION_DEBUG <span class="tag tag-new">NUEVA</span></h3>
+<p>Soporta <code>POST /api/debug/sessions</code> y <code>GET /api/debug/sessions/{id}</code>. Cabecera de una sesi&oacute;n de troubleshooting.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>sesion_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MAQUINA</span></td><td>No</td><td>M&aacute;quina objetivo.</td></tr>
+<tr><td>tecnico_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>T&eacute;cnico responsable.</td></tr>
+<tr><td>issue_description</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Descripci&oacute;n inicial del problema.</td></tr>
+<tr><td>priority</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>low | medium | high.</td></tr>
+<tr><td>start_time</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Inicio.</td></tr>
+<tr><td>end_time</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>Cierre.</td></tr>
+<tr><td>duration_minutes</td><td>INT</td><td>&nbsp;</td><td>S&iacute;</td><td>Duraci&oacute;n total.</td></tr>
+<tr><td>resolution</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Resoluci&oacute;n final.</td></tr>
+<tr><td>summary</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Resumen ejecutivo.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>active | completed | closed.</td></tr>
+</table>
+
+<h3>8.5 ADJUNTO <span class="tag tag-new">NUEVA</span></h3>
+<p>Im&aacute;genes, videos y audios asociados a mensajes o sesiones de debug. Soporta <code>POST /api/debug/attachments</code> y <code>POST /api/upload</code>.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>adjunto_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>mensaje_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MENSAJE</span></td><td>S&iacute;</td><td>Mensaje al que se adjunta (puede ser NULL).</td></tr>
+<tr><td>sesion_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; SESION_DEBUG</span></td><td>S&iacute;</td><td>Sesi&oacute;n de debug (alternativa).</td></tr>
+<tr><td>usuario_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>Subido por.</td></tr>
+<tr><td>tipo</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>image | video | audio | document.</td></tr>
+<tr><td>url</td><td>VARCHAR(500)</td><td>&nbsp;</td><td>No</td><td>URL del archivo.</td></tr>
+<tr><td>thumbnail_url</td><td>VARCHAR(500)</td><td>&nbsp;</td><td>S&iacute;</td><td>URL del thumbnail.</td></tr>
+<tr><td>filename</td><td>VARCHAR(200)</td><td>&nbsp;</td><td>S&iacute;</td><td>Nombre original.</td></tr>
+<tr><td>size_bytes</td><td>BIGINT</td><td>&nbsp;</td><td>S&iacute;</td><td>Tama&ntilde;o.</td></tr>
+<tr><td>mime_type</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>S&iacute;</td><td>Tipo MIME.</td></tr>
+<tr><td>descripcion</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>S&iacute;</td><td>Descripci&oacute;n textual.</td></tr>
+<tr><td>uploaded_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha de subida.</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2>9. M&oacute;dulo 5 &mdash; Diagn&oacute;stico y Reportes</h2>
+
+<h3>9.1 DIAGNOSTICO <span class="tag tag-mod">MODIFICADA</span></h3>
+<p>Diagn&oacute;stico generado a partir de una sesi&oacute;n de debug. Soporta el bloque <code>diagnostics</code> del endpoint <code>POST /api/chat/debug</code>.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>diagnostico_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>sesion_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; SESION_DEBUG</span></td><td>No</td><td>Sesi&oacute;n de origen.</td></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MAQUINA</span></td><td>No</td><td>M&aacute;quina diagnosticada.</td></tr>
+<tr><td>mensaje_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MENSAJE</span></td><td>S&iacute;</td><td>Mensaje IA que lo gener&oacute;.</td></tr>
+<tr><td>descripcion_problema</td><td>TEXT</td><td>&nbsp;</td><td>No</td><td>Descripci&oacute;n del problema.</td></tr>
+<tr><td>severity</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>low | medium | high | critical.</td></tr>
+<tr><td>urgency</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>low | medium | high.</td></tr>
+<tr><td>fecha_generacion</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha de generaci&oacute;n.</td></tr>
+</table>
+
+<h3>9.2 DIAGNOSTICO_CAUSA <span class="tag tag-new">NUEVA</span></h3>
+<p>Posibles causas (campo <code>possibleCauses[]</code>). 1:N desde DIAGNOSTICO.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>causa_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>diagnostico_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; DIAGNOSTICO</span></td><td>No</td><td>Diagn&oacute;stico padre.</td></tr>
+<tr><td>descripcion</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>No</td><td>Causa probable.</td></tr>
+<tr><td>orden</td><td>INT</td><td>&nbsp;</td><td>No</td><td>Orden de prioridad.</td></tr>
+</table>
+
+<h3>9.3 DIAGNOSTICO_ACCION <span class="tag tag-new">NUEVA</span></h3>
+<p>Acciones sugeridas (<code>suggestedActions[]</code>). 1:N desde DIAGNOSTICO.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>accion_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>diagnostico_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; DIAGNOSTICO</span></td><td>No</td><td>Diagn&oacute;stico padre.</td></tr>
+<tr><td>accion</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>No</td><td>Acci&oacute;n a tomar.</td></tr>
+<tr><td>priority</td><td>INT</td><td>&nbsp;</td><td>No</td><td>Prioridad num&eacute;rica.</td></tr>
+<tr><td>estimated_time</td><td>VARCHAR(40)</td><td>&nbsp;</td><td>S&iacute;</td><td>Tiempo estimado (ej. "30 min").</td></tr>
+<tr><td>required_parts</td><td>JSON</td><td>&nbsp;</td><td>S&iacute;</td><td>Array de repuestos sugeridos.</td></tr>
+</table>
+
+<h3>9.4 REPORTE <span class="tag tag-new">NUEVA</span></h3>
+<p>Reporte de mantenimiento. Soporta <code>POST /api/reports/debug</code>, <code>POST /api/reports/upload</code> y <code>GET /api/reports/{id}</code>.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>reporte_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>report_number</td><td>VARCHAR(40)</td><td>UNIQUE</td><td>No</td><td>N&uacute;mero de reporte legible.</td></tr>
+<tr><td>sesion_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; SESION_DEBUG</span></td><td>S&iacute;</td><td>Sesi&oacute;n de origen.</td></tr>
+<tr><td>diagnostico_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; DIAGNOSTICO</span></td><td>S&iacute;</td><td>Diagn&oacute;stico asociado.</td></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MAQUINA</span></td><td>No</td><td>M&aacute;quina.</td></tr>
+<tr><td>tecnico_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>T&eacute;cnico que lo gener&oacute;.</td></tr>
+<tr><td>summary</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Resumen.</td></tr>
+<tr><td>issue_description</td><td>TEXT</td><td>&nbsp;</td><td>No</td><td>Descripci&oacute;n del problema.</td></tr>
+<tr><td>resolution</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Resoluci&oacute;n aplicada.</td></tr>
+<tr><td>actions_taken</td><td>JSON</td><td>&nbsp;</td><td>S&iacute;</td><td>Array de acciones tomadas.</td></tr>
+<tr><td>additional_notes</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Notas adicionales.</td></tr>
+<tr><td>severity</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>low | medium | high | critical.</td></tr>
+<tr><td>downtime_minutes</td><td>INT</td><td>&nbsp;</td><td>S&iacute;</td><td>Tiempo de inactividad de la m&aacute;quina.</td></tr>
+<tr><td>pdf_url</td><td>VARCHAR(500)</td><td>&nbsp;</td><td>S&iacute;</td><td>URL del PDF generado.</td></tr>
+<tr><td>repository_url</td><td>VARCHAR(500)</td><td>&nbsp;</td><td>S&iacute;</td><td>URL en repositorio central.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>draft | generated | uploaded | approved | archived.</td></tr>
+<tr><td>created_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Creaci&oacute;n.</td></tr>
+<tr><td>uploaded_at</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>Fecha de subida al repositorio.</td></tr>
+<tr><td>approved_by</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>S&iacute;</td><td>Manager que aprob&oacute;.</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2>10. M&oacute;dulo 6 &mdash; &Oacute;rdenes de Trabajo</h2>
+
+<h3>10.1 ORDEN_TRABAJO <span class="tag tag-mod">MODIFICADA</span></h3>
+<p>Refactorizada: se elimina <code>repuesto_id</code> como FK directa (se modela en OT_REPUESTO) y se a&ntilde;aden v&iacute;nculos a REPORTE y campos descriptivos.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>ot_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>numero_ot</td><td>VARCHAR(40)</td><td>UNIQUE</td><td>No</td><td>N&uacute;mero legible (ej. "OT-2026-0123").</td></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MAQUINA</span></td><td>No</td><td>M&aacute;quina.</td></tr>
+<tr><td>tecnico_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>T&eacute;cnico asignado.</td></tr>
+<tr><td>creado_por</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>Usuario que cre&oacute; la OT.</td></tr>
+<tr><td>diagnostico_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; DIAGNOSTICO</span></td><td>S&iacute;</td><td>Diagn&oacute;stico origen.</td></tr>
+<tr><td>reporte_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; REPORTE</span></td><td>S&iacute;</td><td>Reporte asociado.</td></tr>
+<tr><td>tipo</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>corrective | preventive | predictive | inspection.</td></tr>
+<tr><td>descripcion_problema</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Descripci&oacute;n del problema reportado.</td></tr>
+<tr><td>descripcion_reparacion</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Acciones realizadas.</td></tr>
+<tr><td>resolution</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Resoluci&oacute;n final.</td></tr>
+<tr><td>priority</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>low | medium | high | urgent.</td></tr>
+<tr><td>severity</td><td>ENUM</td><td>&nbsp;</td><td>S&iacute;</td><td>low | medium | high | critical.</td></tr>
+<tr><td>fecha_creacion</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Creaci&oacute;n.</td></tr>
+<tr><td>fecha_inicio</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>Inicio de los trabajos.</td></tr>
+<tr><td>fecha_cierre</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>Cierre.</td></tr>
+<tr><td>fecha_vencimiento</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>Fecha l&iacute;mite.</td></tr>
+<tr><td>tiempo_reparacion_min</td><td>INT</td><td>&nbsp;</td><td>S&iacute;</td><td>Tiempo total (minutos).</td></tr>
+<tr><td>downtime_minutes</td><td>INT</td><td>&nbsp;</td><td>S&iacute;</td><td>Tiempo de paro de la m&aacute;quina.</td></tr>
+<tr><td>costo_estimado</td><td>DECIMAL(12,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Costo estimado.</td></tr>
+<tr><td>costo_real</td><td>DECIMAL(12,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Costo final.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>pending | assigned | in_progress | completed | cancelled | overdue.</td></tr>
+</table>
+
+<h3>10.2 OT_REPUESTO <span class="tag tag-new">NUEVA</span> (tabla puente)</h3>
+<p>Relaci&oacute;n muchos-a-muchos entre &Oacute;rdenes de Trabajo y Repuestos consumidos. Soporta <code>POST /work-orders/:id/parts</code> y el campo <code>partsReplaced[]</code> del reporte.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>ot_repuesto_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>ot_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; ORDEN_TRABAJO</span></td><td>No</td><td>OT.</td></tr>
+<tr><td>repuesto_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; REPUESTO</span></td><td>No</td><td>Repuesto consumido.</td></tr>
+<tr><td>cantidad</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>No</td><td>Cantidad usada.</td></tr>
+<tr><td>costo_unitario</td><td>DECIMAL(12,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Costo unitario al momento del uso.</td></tr>
+<tr><td>notas</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>S&iacute;</td><td>Observaciones.</td></tr>
+<tr><td>fecha_uso</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha de consumo.</td></tr>
+</table>
+
+<h3>10.3 OT_AUDIT_LOG <span class="tag tag-mod">MODIFICADA</span> (reemplaza HISTORIAL)</h3>
+<p>Audit trail de cambios de estado de la OT. Reemplaza la tabla original HISTORIAL con sem&aacute;ntica clara.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>audit_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>ot_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; ORDEN_TRABAJO</span></td><td>No</td><td>OT modificada.</td></tr>
+<tr><td>usuario_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>Usuario que realiza el cambio.</td></tr>
+<tr><td>estado_anterior</td><td>VARCHAR(40)</td><td>&nbsp;</td><td>S&iacute;</td><td>Estado previo.</td></tr>
+<tr><td>estado_nuevo</td><td>VARCHAR(40)</td><td>&nbsp;</td><td>No</td><td>Estado actual.</td></tr>
+<tr><td>comentario</td><td>VARCHAR(500)</td><td>&nbsp;</td><td>S&iacute;</td><td>Comentario del cambio.</td></tr>
+<tr><td>timestamp</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha del cambio.</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2>11. M&oacute;dulo 7 &mdash; Inventario</h2>
+
+<h3>11.1 REPUESTO <span class="tag tag-mod">MODIFICADA</span></h3>
+<p>Ampliada con campos comerciales y operacionales. Soporta <code>/inventory/parts</code> y operaciones de stock.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>repuesto_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>codigo</td><td>VARCHAR(50)</td><td>UNIQUE</td><td>No</td><td>C&oacute;digo interno / SKU.</td></tr>
+<tr><td>part_number</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>S&iacute;</td><td>N&uacute;mero de parte del fabricante.</td></tr>
+<tr><td>nombre</td><td>VARCHAR(150)</td><td>&nbsp;</td><td>No</td><td>Nombre comercial.</td></tr>
+<tr><td>descripcion</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Descripci&oacute;n detallada.</td></tr>
+<tr><td>tipo</td><td>VARCHAR(60)</td><td>&nbsp;</td><td>S&iacute;</td><td>Tipo de repuesto.</td></tr>
+<tr><td>categoria</td><td>VARCHAR(60)</td><td>&nbsp;</td><td>S&iacute;</td><td>Categor&iacute;a (Bombas, Sellos, V&aacute;lvulas, etc.).</td></tr>
+<tr><td>unidad</td><td>VARCHAR(20)</td><td>&nbsp;</td><td>No</td><td>Unidad de medida (un, m, kg, l).</td></tr>
+<tr><td>stock_actual</td><td>DECIMAL(12,2)</td><td>&nbsp;</td><td>No</td><td>Stock disponible.</td></tr>
+<tr><td>stock_minimo</td><td>DECIMAL(12,2)</td><td>&nbsp;</td><td>No</td><td>Punto de re-orden.</td></tr>
+<tr><td>stock_maximo</td><td>DECIMAL(12,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Stock m&aacute;ximo.</td></tr>
+<tr><td>costo_unitario</td><td>DECIMAL(12,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Costo promedio ponderado.</td></tr>
+<tr><td>proveedor</td><td>VARCHAR(120)</td><td>&nbsp;</td><td>S&iacute;</td><td>Proveedor habitual.</td></tr>
+<tr><td>ubicacion_bodega</td><td>VARCHAR(80)</td><td>&nbsp;</td><td>S&iacute;</td><td>Ubicaci&oacute;n f&iacute;sica en bodega.</td></tr>
+<tr><td>imagen_url</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>S&iacute;</td><td>URL imagen.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>active | discontinued | out_of_stock.</td></tr>
+<tr><td>created_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Creaci&oacute;n.</td></tr>
+<tr><td>updated_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Actualizaci&oacute;n.</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2>12. M&oacute;dulo 8 &mdash; Topolog&iacute;a de Planta</h2>
+
+<h3>12.1 TOPOLOGIA_NODO <span class="tag tag-new">NUEVA</span></h3>
+<p>Soporta <code>GET /api/topology/plant</code>. Un nodo puede ser una m&aacute;quina, controlador, sensor o hub.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>nodo_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>planta_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; PLANTA</span></td><td>No</td><td>Planta.</td></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MAQUINA</span></td><td>S&iacute;</td><td>Si el nodo es una m&aacute;quina.</td></tr>
+<tr><td>sensor_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; SENSOR</span></td><td>S&iacute;</td><td>Si el nodo es un sensor.</td></tr>
+<tr><td>tipo</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>machine | controller | sensor | hub.</td></tr>
+<tr><td>nombre</td><td>VARCHAR(120)</td><td>&nbsp;</td><td>No</td><td>Nombre del nodo.</td></tr>
+<tr><td>categoria</td><td>VARCHAR(60)</td><td>&nbsp;</td><td>S&iacute;</td><td>Categor&iacute;a libre.</td></tr>
+<tr><td>position_x</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>No</td><td>X.</td></tr>
+<tr><td>position_y</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>No</td><td>Y.</td></tr>
+<tr><td>position_z</td><td>DECIMAL(10,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Z (opcional).</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>operational | warning | error | offline.</td></tr>
+<tr><td>updated_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Actualizaci&oacute;n.</td></tr>
+</table>
+
+<h3>12.2 TOPOLOGIA_CONEXION <span class="tag tag-new">NUEVA</span></h3>
+<p>Conexiones entre nodos. Soporta <code>GET /api/machines/{id}/connections</code>.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>conexion_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>nodo_origen_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; TOPOLOGIA_NODO</span></td><td>No</td><td>Nodo de origen.</td></tr>
+<tr><td>nodo_destino_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; TOPOLOGIA_NODO</span></td><td>No</td><td>Nodo destino.</td></tr>
+<tr><td>tipo</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>electrical | mechanical | data | hydraulic | pneumatic.</td></tr>
+<tr><td>label</td><td>VARCHAR(120)</td><td>&nbsp;</td><td>S&iacute;</td><td>Etiqueta visible.</td></tr>
+<tr><td>bidirectional</td><td>BOOLEAN</td><td>&nbsp;</td><td>No</td><td>Conexi&oacute;n bidireccional.</td></tr>
+<tr><td>bandwidth</td><td>VARCHAR(40)</td><td>&nbsp;</td><td>S&iacute;</td><td>Ancho de banda (data).</td></tr>
+<tr><td>strength</td><td>INT</td><td>&nbsp;</td><td>S&iacute;</td><td>Fortaleza 0-100.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>active | inactive.</td></tr>
+</table>
+
+<h3>12.3 TOPOLOGIA_ZONA <span class="tag tag-new">NUEVA</span></h3>
+<p>Agrupaciones visuales de nodos (sectores, l&iacute;neas de producci&oacute;n).</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>zona_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>planta_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; PLANTA</span></td><td>No</td><td>Planta.</td></tr>
+<tr><td>nombre</td><td>VARCHAR(120)</td><td>&nbsp;</td><td>No</td><td>Nombre.</td></tr>
+<tr><td>color</td><td>VARCHAR(20)</td><td>&nbsp;</td><td>S&iacute;</td><td>Color de visualizaci&oacute;n.</td></tr>
+<tr><td>descripcion</td><td>VARCHAR(255)</td><td>&nbsp;</td><td>S&iacute;</td><td>Descripci&oacute;n.</td></tr>
+</table>
+
+<h3>12.4 ZONA_NODO <span class="tag tag-new">NUEVA</span> (tabla puente)</h3>
+<p>Relaci&oacute;n M:N entre nodos y zonas (un nodo puede estar en varias zonas).</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>zona_id</td><td>BIGINT</td><td><span class="pk">PK</span> <span class="fk">FK &rarr; TOPOLOGIA_ZONA</span></td><td>No</td><td>Zona.</td></tr>
+<tr><td>nodo_id</td><td>BIGINT</td><td><span class="pk">PK</span> <span class="fk">FK &rarr; TOPOLOGIA_NODO</span></td><td>No</td><td>Nodo.</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2>13. M&oacute;dulo 9 &mdash; Mantenimiento Predictivo</h2>
+
+<h3>13.1 PROGRAMA_MANTENIMIENTO <span class="tag tag-new">NUEVA</span></h3>
+<p>Implementa el m&oacute;dulo "Predictive Maintenance" del wireframe. Soporta los endpoints <code>/schedules/*</code> de la API de mantenimiento preventivo.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>programa_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>maquina_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; MAQUINA</span></td><td>No</td><td>M&aacute;quina objetivo.</td></tr>
+<tr><td>creado_por</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>No</td><td>Creador.</td></tr>
+<tr><td>nombre</td><td>VARCHAR(150)</td><td>&nbsp;</td><td>No</td><td>Nombre del programa.</td></tr>
+<tr><td>descripcion</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Descripci&oacute;n.</td></tr>
+<tr><td>instrucciones</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Procedimiento detallado.</td></tr>
+<tr><td>frecuencia</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>daily | weekly | monthly | quarterly | yearly | custom.</td></tr>
+<tr><td>intervalo_dias</td><td>INT</td><td>&nbsp;</td><td>S&iacute;</td><td>Para frecuencia custom.</td></tr>
+<tr><td>priority</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>low | medium | high.</td></tr>
+<tr><td>duracion_estimada_min</td><td>INT</td><td>&nbsp;</td><td>S&iacute;</td><td>Duraci&oacute;n estimada.</td></tr>
+<tr><td>costo_estimado</td><td>DECIMAL(12,2)</td><td>&nbsp;</td><td>S&iacute;</td><td>Costo estimado por ejecuci&oacute;n.</td></tr>
+<tr><td>fecha_inicio</td><td>DATE</td><td>&nbsp;</td><td>No</td><td>Inicio del programa.</td></tr>
+<tr><td>proxima_ejecucion</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>Pr&oacute;xima fecha programada.</td></tr>
+<tr><td>ultima_ejecucion</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>&Uacute;ltima ejecuci&oacute;n.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>active | paused | inactive.</td></tr>
+<tr><td>created_at</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Creaci&oacute;n.</td></tr>
+</table>
+
+<h3>13.2 EJECUCION_PROGRAMA <span class="tag tag-new">NUEVA</span></h3>
+<p>Historial de ejecuciones de los programas (soporta <code>GET /schedules/:id/execution-history</code>).</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>ejecucion_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>programa_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; PROGRAMA_MANTENIMIENTO</span></td><td>No</td><td>Programa.</td></tr>
+<tr><td>ot_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; ORDEN_TRABAJO</span></td><td>S&iacute;</td><td>OT generada por esta ejecuci&oacute;n.</td></tr>
+<tr><td>tecnico_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; USUARIO</span></td><td>S&iacute;</td><td>T&eacute;cnico que la ejecut&oacute;.</td></tr>
+<tr><td>fecha_programada</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Fecha planificada.</td></tr>
+<tr><td>fecha_ejecutada</td><td>DATETIME</td><td>&nbsp;</td><td>S&iacute;</td><td>Fecha real de ejecuci&oacute;n.</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>scheduled | completed | skipped | overdue.</td></tr>
+<tr><td>notas</td><td>TEXT</td><td>&nbsp;</td><td>S&iacute;</td><td>Observaciones.</td></tr>
+</table>
+
+<h3>13.3 LECTURA_SENSOR <span class="tag tag-new">NUEVA</span></h3>
+<p>Historial de lecturas de sensores. Base para an&aacute;lisis predictivo y gr&aacute;ficos de tendencia.</p>
+<table class="spec">
+<tr><th>Atributo</th><th>Tipo</th><th>Llave</th><th>Nulo</th><th>Descripci&oacute;n</th></tr>
+<tr><td>lectura_id</td><td>BIGINT</td><td><span class="pk">PK</span></td><td>No</td><td>Identificador.</td></tr>
+<tr><td>sensor_id</td><td>BIGINT</td><td><span class="fk">FK &rarr; SENSOR</span></td><td>No</td><td>Sensor.</td></tr>
+<tr><td>valor</td><td>DECIMAL(14,4)</td><td>&nbsp;</td><td>No</td><td>Valor le&iacute;do.</td></tr>
+<tr><td>timestamp</td><td>DATETIME</td><td>&nbsp;</td><td>No</td><td>Marca de tiempo (alta cardinalidad &mdash; particionar por fecha).</td></tr>
+<tr><td>estado</td><td>ENUM</td><td>&nbsp;</td><td>No</td><td>normal | warning | critical.</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2>14. Relaciones Clave</h2>
+
+<div class="module-box">
+<p><strong>Identidad y acceso:</strong></p>
+<ul>
+<li><code>USUARIO</code> 1 &mdash; N <code>AUTH_TOKEN</code> (tokens por dispositivo).</li>
+<li><code>USUARIO</code> 1 &mdash; 1 <code>PREFERENCIA_USUARIO</code>.</li>
+<li><code>USUARIO</code> 1 &mdash; N <code>LOG_ACTIVIDAD</code>.</li>
+</ul>
+</div>
+
+<div class="module-box">
+<p><strong>Plantas, m&aacute;quinas, sensores:</strong></p>
+<ul>
+<li><code>PLANTA</code> 1 &mdash; N <code>MAQUINA</code>.</li>
+<li><code>CATEGORIA_MAQUINA</code> 1 &mdash; N <code>MAQUINA</code>.</li>
+<li><code>MAQUINA</code> 1 &mdash; N <code>SENSOR</code>.</li>
+<li><code>MAQUINA</code> 1 &mdash; N <code>DOCUMENTO</code> (la m&aacute;quina "posee" sus manuales).</li>
+</ul>
+</div>
+
+<div class="module-box">
+<p><strong>Documentaci&oacute;n y chat:</strong></p>
+<ul>
+<li><code>DISCIPLINA</code> 1 &mdash; N <code>DOCUMENTO</code>.</li>
+<li><code>DISCIPLINA</code> 1 &mdash; N <code>CONVERSACION</code> (en document_chat).</li>
+<li><code>USUARIO</code> 1 &mdash; N <code>CONVERSACION</code>.</li>
+<li><code>CONVERSACION</code> 1 &mdash; N <code>MENSAJE</code>.</li>
+<li><code>MENSAJE</code> 1 &mdash; N <code>FUENTE_MENSAJE</code> &rarr; <code>DOCUMENTO</code> (citas).</li>
+<li><code>MENSAJE</code> 1 &mdash; N <code>ADJUNTO</code>.</li>
+</ul>
+</div>
+
+<div class="module-box">
+<p><strong>Diagn&oacute;stico y reporte:</strong></p>
+<ul>
+<li><code>SESION_DEBUG</code> 1 &mdash; 1 <code>CONVERSACION</code> (tipo debug_chat).</li>
+<li><code>SESION_DEBUG</code> 1 &mdash; N <code>DIAGNOSTICO</code>.</li>
+<li><code>DIAGNOSTICO</code> 1 &mdash; N <code>DIAGNOSTICO_CAUSA</code> y <code>DIAGNOSTICO_ACCION</code>.</li>
+<li><code>SESION_DEBUG</code> 1 &mdash; N <code>REPORTE</code>.</li>
+<li><code>REPORTE</code> 1 &mdash; 1 <code>ORDEN_TRABAJO</code> (opcional).</li>
+</ul>
+</div>
+
+<div class="module-box">
+<p><strong>&Oacute;rdenes de trabajo:</strong></p>
+<ul>
+<li><code>DIAGNOSTICO</code> 1 &mdash; N <code>ORDEN_TRABAJO</code>.</li>
+<li><code>ORDEN_TRABAJO</code> N &mdash; M <code>REPUESTO</code> a trav&eacute;s de <code>OT_REPUESTO</code>.</li>
+<li><code>ORDEN_TRABAJO</code> 1 &mdash; N <code>OT_AUDIT_LOG</code>.</li>
+</ul>
+</div>
+
+<div class="module-box">
+<p><strong>Topolog&iacute;a:</strong></p>
+<ul>
+<li><code>PLANTA</code> 1 &mdash; N <code>TOPOLOGIA_NODO</code>.</li>
+<li><code>TOPOLOGIA_NODO</code> N &mdash; M <code>TOPOLOGIA_NODO</code> a trav&eacute;s de <code>TOPOLOGIA_CONEXION</code>.</li>
+<li><code>TOPOLOGIA_NODO</code> N &mdash; M <code>TOPOLOGIA_ZONA</code> a trav&eacute;s de <code>ZONA_NODO</code>.</li>
+</ul>
+</div>
+
+<div class="module-box">
+<p><strong>Predictivo:</strong></p>
+<ul>
+<li><code>MAQUINA</code> 1 &mdash; N <code>PROGRAMA_MANTENIMIENTO</code>.</li>
+<li><code>PROGRAMA_MANTENIMIENTO</code> 1 &mdash; N <code>EJECUCION_PROGRAMA</code>.</li>
+<li><code>EJECUCION_PROGRAMA</code> 1 &mdash; 1 <code>ORDEN_TRABAJO</code> (al ejecutar, se genera una OT preventiva).</li>
+<li><code>SENSOR</code> 1 &mdash; N <code>LECTURA_SENSOR</code>.</li>
+</ul>
+</div>
+
+<!-- ================================================================ -->
+<h2>15. Notas de Implementaci&oacute;n</h2>
+<ul>
+<li><strong>&Iacute;ndices recomendados:</strong> todas las FK deben tener &iacute;ndice. Adicionalmente: <code>USUARIO(email)</code>, <code>USUARIO(username)</code>, <code>AUTH_TOKEN(refresh_token)</code>, <code>DOCUMENTO(disciplina_id, planta_id, maquina_id)</code>, <code>MENSAJE(conversacion_id, timestamp)</code>, <code>LECTURA_SENSOR(sensor_id, timestamp)</code> &mdash; esta &uacute;ltima se beneficia de particionamiento por fecha.</li>
+<li><strong>Eliminar la tabla DASHBOARD original:</strong> los KPIs del dashboard (<code>GET /reports/dashboard-kpis</code>) son agregados calculados sobre las tablas existentes, no entidades persistidas. Si se requiere cach&eacute;, crear una tabla <code>KPI_SNAPSHOT</code> con (fecha, tipo, valor) o usar materialized views.</li>
+<li><strong>Diagn&oacute;sticos vs Mensajes:</strong> un diagn&oacute;stico se asocia a un mensaje espec&iacute;fico del asistente (el que lo gener&oacute;), pero pueden generarse varios diagn&oacute;sticos en una misma sesi&oacute;n. Por eso la FK <code>DIAGNOSTICO.mensaje_id</code> es opcional.</li>
+<li><strong>Soft delete:</strong> la API actual no lo implementa (los DELETE son f&iacute;sicos). Si se requiere, agregar columnas <code>deleted_at NULLABLE</code> y <code>deleted_by</code> a las tablas cr&iacute;ticas.</li>
+<li><strong>Particionamiento:</strong> <code>LECTURA_SENSOR</code>, <code>LOG_ACTIVIDAD</code> y <code>OT_AUDIT_LOG</code> crecen indefinidamente &mdash; particionarlas por mes/a&ntilde;o.</li>
+<li><strong>Integridad referencial:</strong> usar <code>ON DELETE RESTRICT</code> por defecto. Excepciones: <code>ON DELETE CASCADE</code> para MENSAJE&rarr;FUENTE_MENSAJE y CONVERSACION&rarr;MENSAJE.</li>
+</ul>
+
+<!-- ================================================================ -->
+<h2>16. Diagrama Entidad-Relaci&oacute;n</h2>
+<p>Diagrama global del modelo propuesto. Las tablas se agrupan en m&oacute;dulos por color y se muestran las relaciones principales (FK). Las tablas puente y atributos completos se documentan en las secciones anteriores.</p>
+
+<div class="diagram-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1080" width="100%" style="max-width:1400px;background:#ffffff;border:1px solid #cbd5e1;">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker>
+<style>
+.mod-bg { fill: #f8fafc; stroke-width: 1.5; opacity: 0.55; }
+.mod-title { font-family: Arial, sans-serif; font-size: 13px; font-weight: bold; }
+.entity { stroke-width: 1.5; rx: 5; ry: 5; }
+.entity-text { font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; fill: #0f172a; text-anchor: middle; }
+.entity-sub { font-family: Arial, sans-serif; font-size: 8.5px; fill: #475569; text-anchor: middle; }
+.rel-line { stroke: #64748b; stroke-width: 1.2; fill: none; }
+.rel-card { font-family: Arial, sans-serif; font-size: 9px; fill: #1e293b; }
+.legend-text { font-family: Arial, sans-serif; font-size: 10px; fill: #1f2937; }
+.title-main { font-family: Arial, sans-serif; font-size: 17px; font-weight: bold; fill: #0f172a; }
+</style>
+</defs>
+
+<!-- Title -->
+<text x="700" y="28" class="title-main" text-anchor="middle">Modelo de Datos - Proyecto Barb (Diagrama ER)</text>
+
+<!-- ============ MODULES BACKGROUNDS ============ -->
+<!-- M1 Users (purple) -->
+<rect x="15" y="50" width="430" height="220" class="mod-bg" stroke="#7c3aed" fill="#f5f3ff"/>
+<text x="230" y="68" class="mod-title" fill="#5b21b6" text-anchor="middle">M1 - Autenticacion &amp; Usuarios</text>
+
+<!-- M2 Plant/Machines (blue) -->
+<rect x="465" y="50" width="430" height="220" class="mod-bg" stroke="#2563eb" fill="#eff6ff"/>
+<text x="680" y="68" class="mod-title" fill="#1e3a8a" text-anchor="middle">M2 - Plantas &amp; Maquinas</text>
+
+<!-- M3 Docs (teal) -->
+<rect x="915" y="50" width="470" height="220" class="mod-bg" stroke="#0d9488" fill="#f0fdfa"/>
+<text x="1150" y="68" class="mod-title" fill="#115e59" text-anchor="middle">M3 - Documentacion</text>
+
+<!-- M4 Chat (pink) -->
+<rect x="15" y="290" width="430" height="290" class="mod-bg" stroke="#db2777" fill="#fdf2f8"/>
+<text x="230" y="308" class="mod-title" fill="#9d174d" text-anchor="middle">M4 - Chat (Documentacion &amp; Debug)</text>
+
+<!-- M5 Diagnosis (orange) -->
+<rect x="465" y="290" width="430" height="290" class="mod-bg" stroke="#ea580c" fill="#fff7ed"/>
+<text x="680" y="308" class="mod-title" fill="#9a3412" text-anchor="middle">M5 - Diagnostico &amp; Reportes</text>
+
+<!-- M6 Work Orders (red) -->
+<rect x="915" y="290" width="470" height="290" class="mod-bg" stroke="#dc2626" fill="#fef2f2"/>
+<text x="1150" y="308" class="mod-title" fill="#991b1b" text-anchor="middle">M6 - Ordenes de Trabajo</text>
+
+<!-- M7 Topology (green) -->
+<rect x="15" y="600" width="900" height="200" class="mod-bg" stroke="#059669" fill="#ecfdf5"/>
+<text x="465" y="618" class="mod-title" fill="#065f46" text-anchor="middle">M8 - Topologia de Planta</text>
+
+<!-- M8 Inventory (amber) -->
+<rect x="935" y="600" width="220" height="200" class="mod-bg" stroke="#d97706" fill="#fffbeb"/>
+<text x="1045" y="618" class="mod-title" fill="#92400e" text-anchor="middle">M7 - Inventario</text>
+
+<!-- M9 Predictive (indigo) -->
+<rect x="1175" y="600" width="210" height="200" class="mod-bg" stroke="#4f46e5" fill="#eef2ff"/>
+<text x="1280" y="618" class="mod-title" fill="#3730a3" text-anchor="middle">M9 - Predictivo</text>
+
+<!-- ============ ENTITIES ============ -->
+<!-- M1: Users -->
+<g><rect x="40" y="85" width="170" height="48" class="entity" fill="#ddd6fe" stroke="#7c3aed"/>
+<text x="125" y="103" class="entity-text">USUARIO</text>
+<text x="125" y="122" class="entity-sub">PK usuario_id</text></g>
+
+<g><rect x="240" y="85" width="170" height="48" class="entity" fill="#ddd6fe" stroke="#7c3aed"/>
+<text x="325" y="103" class="entity-text">AUTH_TOKEN</text>
+<text x="325" y="122" class="entity-sub">PK token_id, FK usuario_id</text></g>
+
+<g><rect x="40" y="195" width="170" height="48" class="entity" fill="#ddd6fe" stroke="#7c3aed"/>
+<text x="125" y="213" class="entity-text">PREFERENCIA_USUARIO</text>
+<text x="125" y="232" class="entity-sub">PK/FK usuario_id</text></g>
+
+<g><rect x="240" y="195" width="170" height="48" class="entity" fill="#ddd6fe" stroke="#7c3aed"/>
+<text x="325" y="213" class="entity-text">LOG_ACTIVIDAD</text>
+<text x="325" y="232" class="entity-sub">PK activity_id, FK usuario_id</text></g>
+
+<!-- M2: Plant/Machines -->
+<g><rect x="490" y="85" width="170" height="48" class="entity" fill="#bfdbfe" stroke="#2563eb"/>
+<text x="575" y="103" class="entity-text">PLANTA</text>
+<text x="575" y="122" class="entity-sub">PK planta_id</text></g>
+
+<g><rect x="690" y="85" width="170" height="48" class="entity" fill="#bfdbfe" stroke="#2563eb"/>
+<text x="775" y="103" class="entity-text">CATEGORIA_MAQUINA</text>
+<text x="775" y="122" class="entity-sub">PK categoria_id</text></g>
+
+<g><rect x="490" y="195" width="170" height="48" class="entity" fill="#bfdbfe" stroke="#2563eb"/>
+<text x="575" y="213" class="entity-text">MAQUINA</text>
+<text x="575" y="232" class="entity-sub">PK maquina_id, FK planta/cat</text></g>
+
+<g><rect x="690" y="195" width="170" height="48" class="entity" fill="#bfdbfe" stroke="#2563eb"/>
+<text x="775" y="213" class="entity-text">SENSOR</text>
+<text x="775" y="232" class="entity-sub">PK sensor_id, FK maquina_id</text></g>
+
+<!-- M3: Docs -->
+<g><rect x="940" y="85" width="200" height="48" class="entity" fill="#99f6e4" stroke="#0d9488"/>
+<text x="1040" y="103" class="entity-text">DISCIPLINA</text>
+<text x="1040" y="122" class="entity-sub">PK disciplina_id</text></g>
+
+<g><rect x="1170" y="85" width="200" height="48" class="entity" fill="#99f6e4" stroke="#0d9488"/>
+<text x="1270" y="103" class="entity-text">DOCUMENTO</text>
+<text x="1270" y="122" class="entity-sub">PK documento_id, FK disc/planta/maq</text></g>
+
+<!-- M4: Chat -->
+<g><rect x="40" y="325" width="170" height="48" class="entity" fill="#fbcfe8" stroke="#db2777"/>
+<text x="125" y="343" class="entity-text">CONVERSACION</text>
+<text x="125" y="362" class="entity-sub">PK conversacion_id</text></g>
+
+<g><rect x="240" y="325" width="170" height="48" class="entity" fill="#fbcfe8" stroke="#db2777"/>
+<text x="325" y="343" class="entity-text">SESION_DEBUG</text>
+<text x="325" y="362" class="entity-sub">PK sesion_id, FK maquina/tecnico</text></g>
+
+<g><rect x="40" y="400" width="170" height="48" class="entity" fill="#fbcfe8" stroke="#db2777"/>
+<text x="125" y="418" class="entity-text">MENSAJE</text>
+<text x="125" y="437" class="entity-sub">PK mensaje_id, FK conversacion_id</text></g>
+
+<g><rect x="240" y="400" width="170" height="48" class="entity" fill="#fbcfe8" stroke="#db2777"/>
+<text x="325" y="418" class="entity-text">ADJUNTO</text>
+<text x="325" y="437" class="entity-sub">PK adjunto_id, FK mensaje/sesion</text></g>
+
+<g><rect x="140" y="495" width="170" height="48" class="entity" fill="#fbcfe8" stroke="#db2777"/>
+<text x="225" y="513" class="entity-text">FUENTE_MENSAJE</text>
+<text x="225" y="532" class="entity-sub">PK fuente_id, FK mensaje/doc</text></g>
+
+<!-- M5: Diagnosis -->
+<g><rect x="490" y="325" width="170" height="48" class="entity" fill="#fed7aa" stroke="#ea580c"/>
+<text x="575" y="343" class="entity-text">DIAGNOSTICO</text>
+<text x="575" y="362" class="entity-sub">PK diagnostico_id, FK sesion/maq</text></g>
+
+<g><rect x="690" y="325" width="170" height="48" class="entity" fill="#fed7aa" stroke="#ea580c"/>
+<text x="775" y="343" class="entity-text">REPORTE</text>
+<text x="775" y="362" class="entity-sub">PK reporte_id, FK sesion/diag</text></g>
+
+<g><rect x="490" y="400" width="170" height="48" class="entity" fill="#fed7aa" stroke="#ea580c"/>
+<text x="575" y="418" class="entity-text">DIAGNOSTICO_CAUSA</text>
+<text x="575" y="437" class="entity-sub">PK causa_id, FK diagnostico_id</text></g>
+
+<g><rect x="690" y="400" width="170" height="48" class="entity" fill="#fed7aa" stroke="#ea580c"/>
+<text x="775" y="418" class="entity-text">DIAGNOSTICO_ACCION</text>
+<text x="775" y="437" class="entity-sub">PK accion_id, FK diagnostico_id</text></g>
+
+<!-- M6: Work Orders -->
+<g><rect x="940" y="325" width="200" height="48" class="entity" fill="#fecaca" stroke="#dc2626"/>
+<text x="1040" y="343" class="entity-text">ORDEN_TRABAJO</text>
+<text x="1040" y="362" class="entity-sub">PK ot_id, FK maq/diag/reporte</text></g>
+
+<g><rect x="1170" y="325" width="200" height="48" class="entity" fill="#fecaca" stroke="#dc2626"/>
+<text x="1270" y="343" class="entity-text">OT_REPUESTO</text>
+<text x="1270" y="362" class="entity-sub">PK, FK ot_id + repuesto_id</text></g>
+
+<g><rect x="940" y="400" width="200" height="48" class="entity" fill="#fecaca" stroke="#dc2626"/>
+<text x="1040" y="418" class="entity-text">OT_AUDIT_LOG</text>
+<text x="1040" y="437" class="entity-sub">PK audit_id, FK ot_id</text></g>
+
+<!-- M7 (Inventario) -->
+<g><rect x="955" y="650" width="180" height="48" class="entity" fill="#fde68a" stroke="#d97706"/>
+<text x="1045" y="668" class="entity-text">REPUESTO</text>
+<text x="1045" y="687" class="entity-sub">PK repuesto_id</text></g>
+
+<!-- M8: Topology -->
+<g><rect x="40" y="640" width="170" height="48" class="entity" fill="#a7f3d0" stroke="#059669"/>
+<text x="125" y="658" class="entity-text">TOPOLOGIA_NODO</text>
+<text x="125" y="677" class="entity-sub">PK nodo_id, FK planta/maq/sensor</text></g>
+
+<g><rect x="240" y="640" width="170" height="48" class="entity" fill="#a7f3d0" stroke="#059669"/>
+<text x="325" y="658" class="entity-text">TOPOLOGIA_CONEXION</text>
+<text x="325" y="677" class="entity-sub">PK conexion_id, FK origen/destino</text></g>
+
+<g><rect x="440" y="640" width="170" height="48" class="entity" fill="#a7f3d0" stroke="#059669"/>
+<text x="525" y="658" class="entity-text">TOPOLOGIA_ZONA</text>
+<text x="525" y="677" class="entity-sub">PK zona_id, FK planta_id</text></g>
+
+<g><rect x="640" y="640" width="170" height="48" class="entity" fill="#a7f3d0" stroke="#059669"/>
+<text x="725" y="658" class="entity-text">ZONA_NODO</text>
+<text x="725" y="677" class="entity-sub">PK zona_id + nodo_id</text></g>
+
+<!-- M9: Predictive -->
+<g><rect x="1185" y="640" width="190" height="48" class="entity" fill="#c7d2fe" stroke="#4f46e5"/>
+<text x="1280" y="658" class="entity-text">PROGRAMA_MANTENIMIENTO</text>
+<text x="1280" y="677" class="entity-sub">PK programa_id, FK maquina_id</text></g>
+
+<g><rect x="1185" y="720" width="190" height="48" class="entity" fill="#c7d2fe" stroke="#4f46e5"/>
+<text x="1280" y="738" class="entity-text">EJECUCION_PROGRAMA</text>
+<text x="1280" y="757" class="entity-sub">PK ejecucion_id, FK prog/ot</text></g>
+
+<g><rect x="955" y="720" width="180" height="48" class="entity" fill="#c7d2fe" stroke="#4f46e5"/>
+<text x="1045" y="738" class="entity-text">LECTURA_SENSOR</text>
+<text x="1045" y="757" class="entity-sub">PK lectura_id, FK sensor_id</text></g>
+
+<!-- ============ RELATIONSHIPS ============ -->
+<!-- USUARIO -> AUTH_TOKEN -->
+<path d="M 210 109 L 240 109" class="rel-line" marker-end="url(#arrow)"/>
+<text x="220" y="103" class="rel-card">1:N</text>
+
+<!-- USUARIO -> PREFERENCIA -->
+<path d="M 125 133 L 125 195" class="rel-line" marker-end="url(#arrow)"/>
+<text x="130" y="168" class="rel-card">1:1</text>
+
+<!-- USUARIO -> LOG_ACTIVIDAD -->
+<path d="M 175 133 Q 220 165 290 195" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- PLANTA -> MAQUINA -->
+<path d="M 575 133 L 575 195" class="rel-line" marker-end="url(#arrow)"/>
+<text x="580" y="168" class="rel-card">1:N</text>
+
+<!-- CATEGORIA -> MAQUINA -->
+<path d="M 720 133 Q 660 165 615 195" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- MAQUINA -> SENSOR -->
+<path d="M 660 219 L 690 219" class="rel-line" marker-end="url(#arrow)"/>
+<text x="668" y="213" class="rel-card">1:N</text>
+
+<!-- DISCIPLINA -> DOCUMENTO -->
+<path d="M 1140 109 L 1170 109" class="rel-line" marker-end="url(#arrow)"/>
+<text x="1148" y="103" class="rel-card">1:N</text>
+
+<!-- MAQUINA -> DOCUMENTO -->
+<path d="M 660 209 Q 900 170 1170 130" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- USUARIO -> CONVERSACION -->
+<path d="M 125 133 Q 80 230 125 325" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- DISCIPLINA -> CONVERSACION (cross-module) -->
+<path d="M 940 109 Q 700 240 210 340" class="rel-line" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+
+<!-- CONVERSACION -> MENSAJE -->
+<path d="M 125 373 L 125 400" class="rel-line" marker-end="url(#arrow)"/>
+<text x="130" y="390" class="rel-card">1:N</text>
+
+<!-- MENSAJE -> ADJUNTO -->
+<path d="M 210 424 L 240 424" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- MENSAJE -> FUENTE_MENSAJE -->
+<path d="M 145 448 L 200 495" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- FUENTE_MENSAJE -> DOCUMENTO (cross-module) -->
+<path d="M 310 519 Q 800 400 1230 133" class="rel-line" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+
+<!-- SESION_DEBUG -> CONVERSACION -->
+<path d="M 270 373 Q 240 388 175 373" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- MAQUINA -> SESION_DEBUG -->
+<path d="M 490 219 Q 380 280 325 325" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- SESION_DEBUG -> DIAGNOSTICO -->
+<path d="M 410 349 L 490 349" class="rel-line" marker-end="url(#arrow)"/>
+<text x="430" y="343" class="rel-card">1:N</text>
+
+<!-- DIAGNOSTICO -> DIAGNOSTICO_CAUSA -->
+<path d="M 575 373 L 575 400" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- DIAGNOSTICO -> DIAGNOSTICO_ACCION -->
+<path d="M 620 373 Q 700 388 760 400" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- SESION_DEBUG -> REPORTE -->
+<path d="M 410 349 Q 600 290 700 349" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- DIAGNOSTICO -> ORDEN_TRABAJO -->
+<path d="M 660 349 L 940 349" class="rel-line" marker-end="url(#arrow)"/>
+<text x="780" y="343" class="rel-card">1:N</text>
+
+<!-- REPORTE -> ORDEN_TRABAJO -->
+<path d="M 860 349 Q 900 360 940 360" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- ORDEN_TRABAJO -> OT_REPUESTO -->
+<path d="M 1140 349 L 1170 349" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- ORDEN_TRABAJO -> OT_AUDIT_LOG -->
+<path d="M 1040 373 L 1040 400" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- REPUESTO -> OT_REPUESTO -->
+<path d="M 1100 650 Q 1180 540 1270 373" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- MAQUINA -> ORDEN_TRABAJO -->
+<path d="M 660 219 Q 850 250 990 325" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- PLANTA -> TOPOLOGIA_NODO -->
+<path d="M 575 133 Q 300 400 125 640" class="rel-line" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+
+<!-- MAQUINA -> TOPOLOGIA_NODO -->
+<path d="M 575 243 Q 350 440 145 640" class="rel-line" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+
+<!-- TOPOLOGIA_NODO -> TOPOLOGIA_CONEXION -->
+<path d="M 210 664 L 240 664" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- TOPOLOGIA_ZONA -> ZONA_NODO -->
+<path d="M 610 664 L 640 664" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- MAQUINA -> PROGRAMA_MTO -->
+<path d="M 660 219 Q 1000 400 1280 640" class="rel-line" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+
+<!-- PROGRAMA_MTO -> EJECUCION_PROG -->
+<path d="M 1280 688 L 1280 720" class="rel-line" marker-end="url(#arrow)"/>
+
+<!-- EJECUCION_PROG -> ORDEN_TRABAJO (cross) -->
+<path d="M 1280 720 Q 1290 550 1140 373" class="rel-line" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+
+<!-- SENSOR -> LECTURA_SENSOR -->
+<path d="M 775 243 Q 900 500 1045 720" class="rel-line" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+
+<!-- ============ LEGEND ============ -->
+<g transform="translate(20, 880)">
+<rect x="0" y="0" width="1365" height="180" fill="#ffffff" stroke="#cbd5e1" rx="4"/>
+<text x="12" y="22" class="mod-title" fill="#0f172a">Leyenda</text>
+
+<rect x="12" y="38" width="18" height="14" fill="#ddd6fe" stroke="#7c3aed"/>
+<text x="36" y="50" class="legend-text">M1 Autenticacion y Usuarios</text>
+
+<rect x="220" y="38" width="18" height="14" fill="#bfdbfe" stroke="#2563eb"/>
+<text x="244" y="50" class="legend-text">M2 Plantas y Maquinas</text>
+
+<rect x="400" y="38" width="18" height="14" fill="#99f6e4" stroke="#0d9488"/>
+<text x="424" y="50" class="legend-text">M3 Documentacion</text>
+
+<rect x="560" y="38" width="18" height="14" fill="#fbcfe8" stroke="#db2777"/>
+<text x="584" y="50" class="legend-text">M4 Chat (Documentacion y Debug)</text>
+
+<rect x="800" y="38" width="18" height="14" fill="#fed7aa" stroke="#ea580c"/>
+<text x="824" y="50" class="legend-text">M5 Diagnostico y Reportes</text>
+
+<rect x="1010" y="38" width="18" height="14" fill="#fecaca" stroke="#dc2626"/>
+<text x="1034" y="50" class="legend-text">M6 Ordenes de Trabajo</text>
+
+<rect x="1180" y="38" width="18" height="14" fill="#fde68a" stroke="#d97706"/>
+<text x="1204" y="50" class="legend-text">M7 Inventario</text>
+
+<rect x="12" y="62" width="18" height="14" fill="#a7f3d0" stroke="#059669"/>
+<text x="36" y="74" class="legend-text">M8 Topologia de Planta</text>
+
+<rect x="220" y="62" width="18" height="14" fill="#c7d2fe" stroke="#4f46e5"/>
+<text x="244" y="74" class="legend-text">M9 Mantenimiento Predictivo</text>
+
+<line x1="400" y1="69" x2="430" y2="69" class="rel-line"/>
+<polygon points="430,69 423,65 423,73" fill="#475569"/>
+<text x="438" y="74" class="legend-text">Relacion intra-modulo</text>
+
+<line x1="600" y1="69" x2="630" y2="69" class="rel-line" stroke-dasharray="3,3"/>
+<polygon points="630,69 623,65 623,73" fill="#475569"/>
+<text x="638" y="74" class="legend-text">Relacion entre modulos</text>
+
+<text x="12" y="100" class="legend-text"><tspan font-weight="bold">PK</tspan> = Clave Primaria   |   <tspan font-weight="bold">FK</tspan> = Clave Foranea   |   <tspan font-weight="bold">1:1</tspan> uno-a-uno   |   <tspan font-weight="bold">1:N</tspan> uno-a-muchos   |   <tspan font-weight="bold">N:M</tspan> muchos-a-muchos (via tabla puente)</text>
+
+<text x="12" y="122" class="legend-text"><tspan font-weight="bold">Notas:</tspan> Por claridad visual, algunas relaciones secundarias se omiten en el diagrama pero estan documentadas en la seccion 14 (Relaciones Clave). Las tablas puente OT_REPUESTO y ZONA_NODO implementan relaciones N:M.</text>
+
+<text x="12" y="142" class="legend-text">El modelo soporta los 30 endpoints del documento "Plant Maintenance App - Backend API Documentation" y los 4 modulos del wireframe: Document Chat, Machine Debug, Plant Topology y Predictive Maintenance.</text>
+
+<text x="12" y="162" class="legend-text" font-style="italic">Total: 25 tablas organizadas en 9 modulos funcionales. Tablas nuevas: 18. Tablas modificadas: 7. Tablas eliminadas del modelo original: DASHBOARD (era una vista, no entidad).</text>
+</g>
+
+</svg>
+</div>
+
+<p style="margin-top: 30pt; text-align: center; color: #64748b; font-size: 9pt; border-top: 1px solid #cbd5e1; padding-top: 8pt;">
+Fin del documento &mdash; Modelo de Datos Proyecto Barb v1.0
+</p>
+
+</div>
+</body>
+</html>
